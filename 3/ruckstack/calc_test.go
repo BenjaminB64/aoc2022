@@ -15,3 +15,11 @@ func TestCalc(t *testing.T) {
 		t.Errorf("Expected %d, got %d", expected, actual)
 	}
 }
+
+func TestCalcSecondPart(t *testing.T) {
+	expected := 70
+	actual := CalcSecondPart(testInput)
+	if actual != expected {
+		t.Errorf("Expected %d, got %d", expected, actual)
+	}
+}

@@ -12,4 +12,5 @@ var input string
 
 func main() {
 	fmt.Println(ruckstack.Calc(input))
+	fmt.Println(ruckstack.CalcSecondPart(input))
 }
