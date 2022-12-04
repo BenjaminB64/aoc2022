@@ -10,8 +10,13 @@ type Section struct {
 	Second int
 }
 
-func (s Section) IsIn(section Section) bool {
+func (s Section) FullyContain(section Section) bool {
 	return s.First >= section.First && s.Second <= section.Second
+}
+
+func (s Section) Overlap(section Section) bool {
+	return s.First <= section.First && s.Second >= section.First ||
+		s.First <= section.Second && s.Second >= section.Second
 }
 
 func SectionFromString(s string) Section {
@@ -25,8 +30,12 @@ type Pair struct {
 	Second Section
 }
 
+func (p Pair) FullyContain() bool {
+	return p.First.FullyContain(p.Second) || p.Second.FullyContain(p.First)
+}
+
 func (p Pair) Overlap() bool {
-	return p.First.IsIn(p.Second) || p.Second.IsIn(p.First)
+	return p.First.Overlap(p.Second) || p.Second.Overlap(p.First)
 }
 
 func PairFromString(s string) Pair {

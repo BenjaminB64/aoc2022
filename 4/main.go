@@ -12,4 +12,5 @@ var input string
 
 func main() {
 	fmt.Println(campcleanup.Calc(input))
+	fmt.Println(campcleanup.CalcSecondPart(input))
 }
