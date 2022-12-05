@@ -9,7 +9,7 @@ import (
 var testInput string
 
 func TestCalc(t *testing.T) {
-	result := Calc(testInput)
+	result := Calc(testInput, false)
 	if result != "CMZ" {
 		t.Errorf("expected 'CMZ', got %s", result)
 	}
@@ -20,5 +20,12 @@ func TestCalcRow(t *testing.T) {
 	calcRowLine("   [A] [B] [C] [D] [E] [F] [G] [H] [I]     [K]", &s)
 	if len(s.Stacks) != 10 {
 		t.Errorf("Expected 26 stacks, got %d", len(s.Stacks))
+	}
+}
+
+func TestCalcSecondPart(t *testing.T) {
+	result := Calc(testInput, true)
+	if result != "MCD" {
+		t.Errorf("expected 'MCD', got %s", result)
 	}
 }

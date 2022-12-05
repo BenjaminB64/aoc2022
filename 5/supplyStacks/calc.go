@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func Calc(input string) string {
+func Calc(input string, secondPart bool) string {
 	regexDetectRowStackLine := regexp.MustCompile(`^\s*\[`)
 	regexDetectStackIds := regexp.MustCompile(`^\s*(\d+)`)
 
@@ -28,6 +28,10 @@ func Calc(input string) string {
 		} else {
 			// move
 			stacks.Print()
+			if secondPart {
+				calcMoveLineSecondPart(line, &stacks)
+				continue
+			}
 			calcMoveLine(line, &stacks)
 		}
 	}
@@ -70,4 +74,20 @@ func calcMoveLine(line string, stacks *Stacks) {
 	for i := 0; i < nbToMove; i++ {
 		stacks.Move(from-1, to-1)
 	}
+}
+
+func calcMoveLineSecondPart(line string, stacks *Stacks) {
+	regexDetectMove := regexp.MustCompile(`^move (\d+) from (\d+) to (\d+)$`)
+	matches := regexDetectMove.FindStringSubmatch(line)
+
+	if len(matches) != 4 {
+		fmt.Println("error parsing move line", matches)
+		return
+	}
+	fmt.Println("move line", matches)
+	nbToMove, _ := strconv.Atoi(matches[1])
+	from, _ := strconv.Atoi(matches[2])
+	to, _ := strconv.Atoi(matches[3])
+
+	stacks.BatchMove(from-1, to-1, nbToMove)
 }

@@ -11,5 +11,6 @@ import (
 var input string
 
 func main() {
-	fmt.Println(supplystacks.Calc(input))
+	fmt.Println(supplystacks.Calc(input, false))
+	fmt.Println(supplystacks.Calc(input, true))
 }

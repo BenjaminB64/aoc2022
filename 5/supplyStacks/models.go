@@ -35,6 +35,24 @@ func (s *Stacks) Move(from int, to int) {
 	stackFrom.Crates = stackFrom.Crates[1:]
 }
 
+func (s *Stacks) BatchMove(from int, to int, c int) {
+	stackTo := s.Stacks[to]
+	if stackTo == nil {
+		panic("stack to does not exist")
+	}
+	stackFrom := s.Stacks[from]
+	if stackFrom == nil {
+		panic("stack from is nil")
+	}
+	if len(stackFrom.Crates) == 0 {
+		panic("stack from is empty")
+	}
+	copied := make([]byte, c)
+	copy(copied, stackFrom.Crates[:c])
+	stackTo.Crates = append(copied, stackTo.Crates...)
+	stackFrom.Crates = stackFrom.Crates[c:]
+}
+
 func (s *Stacks) GetTopFromEachStack() string {
 	var result string
 	l := len(s.Stacks)
