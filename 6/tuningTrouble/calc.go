@@ -2,8 +2,7 @@ package tuningTrouble
 
 import "fmt"
 
-func Calc(input string) int {
-	uniqueSequenceLength := 4
+func Calc(input string, uniqueSequenceLength int) int {
 	var chars []byte
 	fmt.Println(input)
 lookingFor:

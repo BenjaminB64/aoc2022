@@ -11,5 +11,6 @@ import (
 var input string
 
 func main() {
-	fmt.Println(tuningTrouble.Calc(input))
+	fmt.Println(tuningTrouble.Calc(input, 4))
+	fmt.Println(tuningTrouble.Calc(input, 14))
 }
