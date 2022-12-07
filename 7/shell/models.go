@@ -45,6 +45,17 @@ func (d *Directory) TotalSize(max int) int {
 	return sum
 }
 
+func (d *Directory) FindDirectoryToDelete(minSize int) int {
+	sMin := d.Size
+	for _, cd := range d.Children {
+		s := cd.FindDirectoryToDelete(minSize)
+		if s < sMin && s >= minSize {
+			sMin = s
+		}
+	}
+	return sMin
+}
+
 type File struct {
 	Name string
 	Size int
