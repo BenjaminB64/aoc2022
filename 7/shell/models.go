@@ -14,12 +14,12 @@ type Directory struct {
 	Size     int
 }
 
-func (d *Directory) CalcSize(max int, level int) int {
+func (d *Directory) CalcSize(level int) int {
 	size := 0
 	fmt.Printf("%s - %s (%d children(s), %d files)\n", strings.Repeat(" ", level), d.Name, len(d.Children), len(d.Files))
 	if d.Children != nil {
 		for _, cd := range d.Children {
-			scd := cd.CalcSize(max, level+1)
+			scd := cd.CalcSize(level + 1)
 			size += scd
 		}
 	}
@@ -31,9 +31,6 @@ func (d *Directory) CalcSize(max int, level int) int {
 	}
 	fmt.Printf("%s - %s (%d)\n", strings.Repeat(" ", level), d.Name, size)
 	d.Size = size
-	if level == 0 {
-		return d.TotalSize(max)
-	}
 	return size
 }
 
