@@ -12,4 +12,5 @@ var input string
 
 func main() {
 	fmt.Println(trees.Calc(input))
+	fmt.Println(trees.CalcSecondPart(input))
 }
