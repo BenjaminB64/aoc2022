@@ -11,5 +11,6 @@ import (
 var input string
 
 func main() {
-	fmt.Println(ropeBridge.Calc(input))
+	fmt.Println(ropeBridge.Calc(input, 1))
+	fmt.Println(ropeBridge.Calc(input, 9))
 }

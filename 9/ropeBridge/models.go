@@ -7,22 +7,25 @@ type Map struct {
 	VisitedPositions map[int]map[int]struct{}
 	XHead            int
 	YHead            int
-	XTail            int
-	YTail            int
+	Followers        []*Position
+}
+
+type Position struct {
+	X int
+	Y int
 }
 
 // NewMap creates a new map
-func NewMap() *Map {
+func NewMap(nbFollower int) *Map {
 	return &Map{
 		VisitedPositions: map[int]map[int]struct{}{
 			0: {
 				0: {},
 			},
 		},
-		XHead: 0,
-		YHead: 0,
-		XTail: 0,
-		YTail: 0,
+		XHead:     0,
+		YHead:     0,
+		Followers: make([]*Position, nbFollower),
 	}
 }
 
@@ -38,29 +41,51 @@ func (m *Map) Move(direction byte) {
 	case 'R':
 		m.XHead += 1
 	}
+	m.Follow()
+}
 
-	DHeight := m.YHead - m.YTail
-	DWidth := m.XHead - m.XTail
-	// absolute value
-	if abs(DHeight) <= 1 && abs(DWidth) <= 1 {
-		return
-	}
+func (m *Map) Follow() {
+	for i := 0; i < len(m.Followers); i++ {
+		x := 0
+		y := 0
+		if i == 0 {
+			x = m.XHead
+			y = m.YHead
+		} else {
+			x = m.Followers[i-1].X
+			y = m.Followers[i-1].Y
+		}
 
-	if DHeight > 0 {
-		m.YTail += 1
-	} else if DHeight < 0 {
-		m.YTail -= 1
-	}
-	if DWidth > 0 {
-		m.XTail += 1
-	} else if DWidth < 0 {
-		m.XTail -= 1
-	}
+		if m.Followers[i] == nil {
+			m.Followers[i] = &Position{}
+		}
 
-	if _, ok := m.VisitedPositions[m.XTail]; !ok {
-		m.VisitedPositions[m.XTail] = map[int]struct{}{}
+		DHeight := y - m.Followers[i].Y
+		DWidth := x - m.Followers[i].X
+		// absolute value
+		if abs(DHeight) <= 1 && abs(DWidth) <= 1 {
+			continue
+		}
+
+		if DHeight > 0 {
+			m.Followers[i].Y += 1
+		} else if DHeight < 0 {
+			m.Followers[i].Y -= 1
+		}
+		if DWidth > 0 {
+			m.Followers[i].X += 1
+		} else if DWidth < 0 {
+			m.Followers[i].X -= 1
+		}
+
+		if i < len(m.Followers)-1 {
+			continue
+		}
+		if _, ok := m.VisitedPositions[m.Followers[i].X]; !ok {
+			m.VisitedPositions[m.Followers[i].X] = map[int]struct{}{}
+		}
+		m.VisitedPositions[m.Followers[i].X][m.Followers[i].Y] = struct{}{}
 	}
-	m.VisitedPositions[m.XTail][m.YTail] = struct{}{}
 }
 
 // Absolute value
@@ -79,10 +104,13 @@ func (m *Map) Print() {
 				fmt.Print("H")
 				continue
 			}
-			if j == m.XTail && i == m.YTail {
-				fmt.Print("T")
-				continue
+			for k, follower := range m.Followers {
+				if follower != nil && follower.X == j && follower.Y == i {
+					fmt.Print(k)
+					continue
+				}
 			}
+
 			if _, ok := m.VisitedPositions[j]; !ok {
 				fmt.Print(".")
 				continue
