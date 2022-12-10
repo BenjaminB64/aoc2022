@@ -1,51 +1,76 @@
 package cathoderaytube
 
-import (
-	"fmt"
-	"strconv"
-	"strings"
-)
+import "strings"
 
-type CPU struct {
-	Registers     map[string]int
-	Cycle         int
+type FirstPart struct {
+	CPU           *CPU
 	ToCatchCycles []int
 	Sum           int
 }
 
-func NewCPU() *CPU {
-	return &CPU{
-		Registers: map[string]int{"X": 1},
+func NewFirstPart() *FirstPart {
+	f := &FirstPart{
+		CPU:           NewCPU(),
+		ToCatchCycles: []int{20, 60, 100, 140, 180, 220},
 	}
+	f.CPU.Clock.RegisterCallback(f.CatchCycle)
+	return f
 }
 
-func (c *CPU) Run(input string) error {
-	split := strings.Split(input, " ")
-	if split[0] == "addx" {
-		n, err := strconv.Atoi(split[1])
-		if err != nil {
-			return err
-		}
-		c.AddCycle(2)
-		c.Registers["X"] += n
-		return nil
-	}
-	if split[0] == "noop" {
-		c.AddCycle(1)
-		return nil
-	}
-	return fmt.Errorf("unknown instruction %s", split[0])
-}
-
-func (c *CPU) AddCycle(n int) {
-	c.Cycle += n
-
-	if len(c.ToCatchCycles) > 0 && c.Cycle >= c.ToCatchCycles[0] {
-		c.Sum += c.ToCatchCycles[0] * c.Registers["X"]
-		if len(c.ToCatchCycles) == 1 {
-			c.ToCatchCycles = []int{}
+// callback called by clock
+func (f *FirstPart) CatchCycle(c int) {
+	if len(f.ToCatchCycles) > 0 && c >= f.ToCatchCycles[0] {
+		f.Sum += f.ToCatchCycles[0] * f.CPU.Registers["X"]
+		if len(f.ToCatchCycles) == 1 {
+			f.ToCatchCycles = []int{}
 			return
 		}
-		c.ToCatchCycles = append([]int{}, c.ToCatchCycles[1:]...)
+		f.ToCatchCycles = append([]int{}, f.ToCatchCycles[1:]...)
 	}
+}
+
+type SecondPart struct {
+	CPU    *CPU
+	Screen []bool
+}
+
+const width = 40
+const height = 6
+
+func NewSecondPart() *SecondPart {
+	s := &SecondPart{
+		CPU:    NewCPU(),
+		Screen: make([]bool, width*height),
+	}
+	s.CPU.Clock.RegisterCallback(s.CatchCycle)
+	return s
+}
+
+func (s *SecondPart) CatchCycle(c int) {
+	index := c - 1
+	// lastRowIndex := width
+	row := (index / width) % (height + 1)
+	col := index - row*width
+
+	if col > width {
+		panic("col >= width")
+	}
+	if s.CPU.Registers["X"]-1 <= col && s.CPU.Registers["X"]+1 >= col {
+		s.Screen[row*width+col] = true
+	}
+}
+
+func (s *SecondPart) String() string {
+	var sb strings.Builder
+	for i := 0; i < height; i++ {
+		for j := 0; j < width; j++ {
+			if s.Screen[i*width+j] {
+				sb.WriteString("#")
+			} else {
+				sb.WriteString(".")
+			}
+		}
+		sb.WriteString("\n")
+	}
+	return sb.String()
 }

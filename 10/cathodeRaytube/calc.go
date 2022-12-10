@@ -1,13 +1,28 @@
 package cathoderaytube
 
-import "strings"
+import (
+	"fmt"
+	"strings"
+)
 
 func Calc(input string) int {
 	s := strings.Split(input, "\n")
-	cpu := NewCPU()
-	cpu.ToCatchCycles = []int{20, 60, 100, 140, 180, 220}
+	f := NewFirstPart()
 	for _, line := range s {
-		cpu.Run(line)
+		f.CPU.Run(line)
 	}
-	return cpu.Sum
+	return f.Sum
+}
+
+func CalcSecondPart(input string) string {
+	s := strings.Split(input, "\n")
+	secondPart := NewSecondPart()
+
+	for _, line := range s {
+		secondPart.CPU.Run(line)
+	}
+
+	p := secondPart.String()
+	fmt.Println(p)
+	return p
 }

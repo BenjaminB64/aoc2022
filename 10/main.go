@@ -12,4 +12,5 @@ var input string
 
 func main() {
 	fmt.Println(cathoderaytube.Calc(input))
+	fmt.Println(cathoderaytube.CalcSecondPart(input))
 }
