@@ -1,6 +1,9 @@
 package monkey
 
-import "fmt"
+import (
+	"fmt"
+	"math/big"
+)
 
 /*
 Example input:
@@ -25,7 +28,7 @@ func (m *Monkeys) AddMonkey(monkey *Monkey) {
 }
 
 type Monkey struct {
-	Items           []int
+	Items           []*big.Int
 	Operation       *Operation
 	TestDivisibleBy int
 	ThrowToIfFalse  int
@@ -39,20 +42,20 @@ type Operation struct {
 	OperandIsItself bool
 }
 
-func (o Operation) Apply(item int) int {
-	operand := o.Operand
+func (o Operation) Apply(item *big.Int) *big.Int {
+	operand := big.NewInt(int64(o.Operand))
 	if o.OperandIsItself {
 		operand = item
 	}
 	switch o.Operator {
 	case Plus:
-		return item + operand
+		return item.Add(item, operand)
 	case Minus:
-		return item - operand
+		return item.Sub(item, operand)
 	case Mult:
-		return item * operand
+		return item.Mul(item, operand)
 	case Div:
-		return item / operand
+		return item.Div(item, operand)
 	default:
 		panic("unknown operator")
 	}
@@ -68,8 +71,13 @@ const (
 )
 
 func NewMonkey(items []int, operation *Operation, testDivisibleBy, throwToIfFalse, throwToIfTrue int) Monkey {
+	bigInts := make([]*big.Int, len(items))
+	for i, item := range items {
+		bigInts[i] = big.NewInt(int64(item))
+	}
+
 	return Monkey{
-		Items:           items,
+		Items:           bigInts,
 		Operation:       operation,
 		TestDivisibleBy: testDivisibleBy,
 		ThrowToIfFalse:  throwToIfFalse,
@@ -81,16 +89,32 @@ func (m *Monkeys) Round() {
 	for i, monkey := range m.Monkeys {
 		for _, item := range monkey.Items {
 			newWorry := monkey.Operation.Apply(item)
-			newWorry = newWorry / 3
-
-			if newWorry%monkey.TestDivisibleBy == 0 {
+			newWorry = newWorry.Div(newWorry, big.NewInt(3))
+			mod := big.NewInt(0)
+			if mod.Mod(newWorry, big.NewInt(int64(monkey.TestDivisibleBy))).Cmp(big.NewInt(0)) == 0 {
 				m.Monkeys[monkey.ThrowToIfTrue].Items = append(m.Monkeys[monkey.ThrowToIfTrue].Items, newWorry)
 			} else {
 				m.Monkeys[monkey.ThrowToIfFalse].Items = append(m.Monkeys[monkey.ThrowToIfFalse].Items, newWorry)
 			}
 			monkey.NbInspectedItem++
 		}
-		m.Monkeys[i].Items = []int{}
+		m.Monkeys[i].Items = []*big.Int{}
+	}
+}
+
+func (m *Monkeys) RoundSecondPart() {
+	for i, monkey := range m.Monkeys {
+		for _, item := range monkey.Items {
+			newWorry := monkey.Operation.Apply(item)
+			mod := big.NewInt(0)
+			if mod.Mod(newWorry, big.NewInt(int64(monkey.TestDivisibleBy))).Cmp(big.NewInt(0)) == 0 {
+				m.Monkeys[monkey.ThrowToIfTrue].Items = append(m.Monkeys[monkey.ThrowToIfTrue].Items, newWorry)
+			} else {
+				m.Monkeys[monkey.ThrowToIfFalse].Items = append(m.Monkeys[monkey.ThrowToIfFalse].Items, newWorry)
+			}
+			monkey.NbInspectedItem++
+		}
+		m.Monkeys[i].Items = []*big.Int{}
 	}
 }
 

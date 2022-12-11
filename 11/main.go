@@ -11,6 +11,6 @@ import (
 var input string
 
 func main() {
-	fmt.Println(monkey.Calc(input))
-	//fmt.Println(monkey.CalcSecondPart(input))
+	//fmt.Println(monkey.Calc(input))
+	fmt.Println(monkey.CalcSecondPart(input))
 }
