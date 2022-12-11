@@ -2,7 +2,6 @@ package monkey
 
 import (
 	"fmt"
-	"math/big"
 	"regexp"
 	"strconv"
 	"strings"
@@ -46,9 +45,9 @@ func (p Parser) ParseMonkey(input string) (int, Monkey) {
 		case 1:
 			// Starting items: 79, 98
 			items, err = p.parseItems(line)
-			m.Items = make([]*big.Int, len(items))
+			m.Items = make([]int64, len(items))
 			for i, item := range items {
-				m.Items[i] = big.NewInt(int64(item))
+				m.Items[i] = int64(item)
 			}
 			if err != nil {
 				panic(err)

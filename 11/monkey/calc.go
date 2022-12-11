@@ -23,6 +23,7 @@ func ParseInput(input string) Monkeys {
 		monkeyLines.WriteString(line)
 		monkeyLines.WriteString("\n")
 	}
+	monkeys.CalcCommonMultiple()
 	return monkeys
 }
 

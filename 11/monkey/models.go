@@ -2,7 +2,6 @@ package monkey
 
 import (
 	"fmt"
-	"math/big"
 )
 
 /*
@@ -16,7 +15,8 @@ Monkey 0:
 	  If false: throw to monkey 3
 */
 type Monkeys struct {
-	Monkeys []*Monkey
+	Monkeys       []*Monkey
+	CommonDivisor int64
 }
 
 func NewMonkeys() Monkeys {
@@ -27,8 +27,15 @@ func (m *Monkeys) AddMonkey(monkey *Monkey) {
 	m.Monkeys = append(m.Monkeys, monkey)
 }
 
+func (m *Monkeys) CalcCommonMultiple() {
+	m.CommonDivisor = 1
+	for _, monkey := range m.Monkeys {
+		m.CommonDivisor *= int64(monkey.TestDivisibleBy)
+	}
+}
+
 type Monkey struct {
-	Items           []*big.Int
+	Items           []int64
 	Operation       *Operation
 	TestDivisibleBy int
 	ThrowToIfFalse  int
@@ -42,22 +49,22 @@ type Operation struct {
 	OperandIsItself bool
 }
 
-func (o Operation) Apply(item *big.Int) *big.Int {
-	operand := big.NewInt(int64(o.Operand))
+func (o Operation) Apply(item int64) int64 {
+	operand := int64(o.Operand)
 	if o.OperandIsItself {
 		operand = item
 	}
 	switch o.Operator {
 	case Plus:
-		return item.Add(item, operand)
+		return item + operand
 	case Minus:
-		return item.Sub(item, operand)
+		return item - operand
 	case Mult:
-		return item.Mul(item, operand)
+		return item * operand
 	case Div:
-		return item.Div(item, operand)
+		return item / operand
 	default:
-		panic("unknown operator")
+		panic(fmt.Sprintf("Unknown operator %s", o.Operator))
 	}
 }
 
@@ -70,14 +77,9 @@ const (
 	Div   Operator = "/"
 )
 
-func NewMonkey(items []int, operation *Operation, testDivisibleBy, throwToIfFalse, throwToIfTrue int) Monkey {
-	bigInts := make([]*big.Int, len(items))
-	for i, item := range items {
-		bigInts[i] = big.NewInt(int64(item))
-	}
-
+func NewMonkey(items []int64, operation *Operation, testDivisibleBy, throwToIfFalse, throwToIfTrue int) Monkey {
 	return Monkey{
-		Items:           bigInts,
+		Items:           items,
 		Operation:       operation,
 		TestDivisibleBy: testDivisibleBy,
 		ThrowToIfFalse:  throwToIfFalse,
@@ -88,33 +90,31 @@ func NewMonkey(items []int, operation *Operation, testDivisibleBy, throwToIfFals
 func (m *Monkeys) Round() {
 	for i, monkey := range m.Monkeys {
 		for _, item := range monkey.Items {
-			newWorry := monkey.Operation.Apply(item)
-			newWorry = newWorry.Div(newWorry, big.NewInt(3))
-			mod := big.NewInt(0)
-			if mod.Mod(newWorry, big.NewInt(int64(monkey.TestDivisibleBy))).Cmp(big.NewInt(0)) == 0 {
+			newWorry := monkey.Operation.Apply(item) % m.CommonDivisor
+			newWorry = newWorry / 3
+			if newWorry%int64(monkey.TestDivisibleBy) == 0 {
 				m.Monkeys[monkey.ThrowToIfTrue].Items = append(m.Monkeys[monkey.ThrowToIfTrue].Items, newWorry)
 			} else {
 				m.Monkeys[monkey.ThrowToIfFalse].Items = append(m.Monkeys[monkey.ThrowToIfFalse].Items, newWorry)
 			}
 			monkey.NbInspectedItem++
 		}
-		m.Monkeys[i].Items = []*big.Int{}
+		m.Monkeys[i].Items = []int64{}
 	}
 }
 
 func (m *Monkeys) RoundSecondPart() {
 	for i, monkey := range m.Monkeys {
 		for _, item := range monkey.Items {
-			newWorry := monkey.Operation.Apply(item)
-			mod := big.NewInt(0)
-			if mod.Mod(newWorry, big.NewInt(int64(monkey.TestDivisibleBy))).Cmp(big.NewInt(0)) == 0 {
+			newWorry := monkey.Operation.Apply(item) % m.CommonDivisor
+			if newWorry%int64(monkey.TestDivisibleBy) == 0 {
 				m.Monkeys[monkey.ThrowToIfTrue].Items = append(m.Monkeys[monkey.ThrowToIfTrue].Items, newWorry)
 			} else {
 				m.Monkeys[monkey.ThrowToIfFalse].Items = append(m.Monkeys[monkey.ThrowToIfFalse].Items, newWorry)
 			}
 			monkey.NbInspectedItem++
 		}
-		m.Monkeys[i].Items = []*big.Int{}
+		m.Monkeys[i].Items = []int64{}
 	}
 }
 
