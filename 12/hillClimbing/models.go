@@ -4,16 +4,17 @@ type HeightMap struct {
 	Width  int
 	Height int
 	Values [][]*Point
-	Start  Point
-	End    Point
+	Start  *Point
+	End    *Point
 	Best   float64
 }
 
 type Point struct {
-	X, Y    int
-	Visited bool
-	Height  int
-	Treat   bool
+	X, Y              int
+	Visited           bool
+	Height            int
+	DistanceFromStart float64
+	Neighbours        []*Point
 }
 
 // pool of heightmaps
@@ -55,9 +56,32 @@ func (hm *HeightMap) copy() *HeightMap {
 				Y:       hm.Values[i][j].Y,
 				Visited: hm.Values[i][j].Visited,
 				Height:  hm.Values[i][j].Height,
-				Treat:   hm.Values[i][j].Treat,
 			})
 		}
 	}
 	return hm2
+}
+
+// print map
+func (hm *HeightMap) String() string {
+	s := ""
+	for i := 0; i < hm.Height; i++ {
+		for j := 0; j < hm.Width; j++ {
+			if hm.Values[i][j] == hm.Start {
+				s += "S"
+				continue
+			}
+			if hm.Values[i][j] == hm.End {
+				s += "E"
+				continue
+			}
+			if hm.Values[i][j].Visited {
+				s += string(byte(hm.Values[i][j].Height) + 'A' - 'a')
+			} else {
+				s += string(byte(hm.Values[i][j].Height))
+			}
+		}
+		s += "\n"
+	}
+	return s
 }
