@@ -1,4 +1,4 @@
-package hillclimbing
+package djikstra
 
 import (
 	"sync"

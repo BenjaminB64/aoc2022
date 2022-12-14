@@ -1,4 +1,4 @@
-package hillclimbing
+package djikstra
 
 import (
 	"fmt"
@@ -27,10 +27,10 @@ func ParseInput(input string) (*HeightMap, error) {
 			}
 			if s[i][j] == 'S' {
 				hm.Start = p
-				p.DistanceFromStart = 0
 				e = 'a'
 			}
 			if s[i][j] == 'E' {
+				p.DistanceFromStart = 0
 				hm.End = p
 				e = 'z'
 			}
@@ -62,7 +62,7 @@ func ParseInput(input string) (*HeightMap, error) {
 	return hm, nil
 }
 
-func Calc(input string) int {
+func Calc(input string) (int, int) {
 	hm, err := ParseInput(input)
 	if err != nil {
 		panic(err)
@@ -70,10 +70,20 @@ func Calc(input string) int {
 
 	hm.Best = 999
 
-	djikstra(hm, hm.Start, hm.End)
-	fmt.Println(call, hm.Best)
+	djikstra(hm, hm.End, hm.Start)
+
 	fmt.Println(hm)
-	return int(hm.Best)
+	fmt.Println(call, hm.Best)
+	b := float64(999)
+	for i := 0; i < hm.Height; i++ {
+		for j := 0; j < hm.Width; j++ {
+			if hm.Values[i][j].Height == 'a' && hm.Values[i][j].DistanceFromStart < b {
+				b = hm.Values[i][j].DistanceFromStart
+			}
+		}
+	}
+
+	return int(hm.Best), int(b)
 }
 
 var call = int64(0)
@@ -97,7 +107,7 @@ func djikstra(hm *HeightMap, p *Point, pDest *Point) {
 			if p2.Visited {
 				continue
 			}
-			if p2.DistanceFromStart > p.DistanceFromStart+1 && p2.Height-p.Height <= 1 {
+			if p2.DistanceFromStart > p.DistanceFromStart+1 && p.Height-p2.Height <= 1 {
 				p2.DistanceFromStart = p.DistanceFromStart + 1
 				heap.Push(p2)
 			}

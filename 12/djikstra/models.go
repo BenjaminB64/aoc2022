@@ -1,4 +1,4 @@
-package hillclimbing
+package djikstra
 
 type HeightMap struct {
 	Width  int
