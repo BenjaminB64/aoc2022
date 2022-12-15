@@ -12,4 +12,5 @@ var input string
 
 func main() {
 	fmt.Println(distressSignal.Calc(input))
+	fmt.Println(distressSignal.CalcSecondPart(input))
 }

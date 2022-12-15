@@ -14,3 +14,10 @@ func TestCalc(t *testing.T) {
 		t.Errorf("expected 13, got %d", result)
 	}
 }
+
+func TestCalcSecondPart(t *testing.T) {
+	result := CalcSecondPart(input)
+	if result != 140 {
+		t.Errorf("expected 13, got %d", result)
+	}
+}

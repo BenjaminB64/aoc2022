@@ -2,6 +2,7 @@ package distressSignal
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 )
 
@@ -38,12 +39,47 @@ func Calc(input string) int {
 	return s
 }
 
+func CalcSecondPart(input string) int {
+	lines := strings.Split(input, "\n")
+	packets := PacketSlice{}
+	for i := 0; i < len(lines); i++ {
+		if lines[i] == "" {
+			continue
+		}
+		packets = append(packets, parseLine(lines[i]))
+	}
+	two := parseLine("[[2]]")
+	six := parseLine("[[6]]")
+	packets = append(packets, two, six)
+
+	sort.Sort(packets)
+
+	twoIndex := -1
+	sixIndex := -1
+
+	for i, p := range packets {
+		if p == two {
+			twoIndex = i + 1
+		}
+		if p == six {
+			sixIndex = i + 1
+		}
+		p.Print()
+		fmt.Println()
+	}
+
+	return twoIndex * sixIndex
+}
+
 func parseLine(line string) *Packet {
 	//fmt.Println("ParseLine", line)
 	root := &Packet{}
 	p := root
 	for i := 0; i < len(line); i++ {
 		if line[i] == '[' {
+			if i == 0 {
+				continue
+			}
 			tmpP := &Packet{Parent: p}
 			p.Values = append(p.Values, tmpP)
 			p = tmpP

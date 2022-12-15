@@ -54,35 +54,33 @@ func (p *Packet) IsRightOrder(right *Packet) Decision {
 	fmt.Print(" ")
 	right.Print()
 	fmt.Println()
-	//leftValues := p.Values
-	//rightValues := right.Values
-	if p.IsLeaf && !right.IsLeaf {
-		p.Values = []*Packet{{Value: p.Value, IsLeaf: true}}
-		p.IsLeaf = false
+	l := p
+	r := right
+	if l.IsLeaf && !r.IsLeaf {
+		l = &Packet{Values: []*Packet{{Value: p.Value, IsLeaf: true}}, IsLeaf: false}
 	}
-	if !p.IsLeaf && right.IsLeaf {
-		right.Values = []*Packet{{Value: right.Value, IsLeaf: true}}
-		right.IsLeaf = false
+	if !l.IsLeaf && r.IsLeaf {
+		r = &Packet{Values: []*Packet{{Value: right.Value, IsLeaf: true}}, IsLeaf: false}
 	}
 
-	if p.IsLeaf && right.IsLeaf {
-		fmt.Println("Compare int:", p.Value, right.Value)
-		if p.Value < right.Value {
+	if l.IsLeaf && r.IsLeaf {
+		fmt.Println("Compare int:", l.Value, r.Value)
+		if l.Value < r.Value {
 			return RightOrder
 		}
-		if p.Value == right.Value {
+		if l.Value == r.Value {
 			return Continue
 		}
 		return NotRightOrder
 	}
 
-	for i, v := range p.Values {
-		if len(right.Values) <= i {
-			fmt.Println("Right out :", len(p.Values), len(right.Values))
+	for i, v := range l.Values {
+		if len(r.Values) <= i {
+			fmt.Println("Right out :", len(l.Values), len(r.Values))
 			return NotRightOrder
 		}
 
-		d := v.IsRightOrder(right.Values[i])
+		d := v.IsRightOrder(r.Values[i])
 		if d == NotRightOrder {
 			fmt.Println("Not Right Order")
 			return NotRightOrder
@@ -92,14 +90,33 @@ func (p *Packet) IsRightOrder(right *Packet) Decision {
 			return RightOrder
 		}
 	}
-	if len(p.Values) == len(right.Values) && len(p.Values) == 0 {
-		return Continue
+	if len(l.Values) < len(r.Values) {
+		return RightOrder
+	}
+	if len(l.Values) > len(r.Values) {
+		return NotRightOrder
 	}
 
 	fmt.Println("Right Order")
-	return RightOrder
+	return Continue
 }
 
 func (p *Pair) IsRightOrder() bool {
 	return p.Left.IsRightOrder(p.Right) == RightOrder
+}
+
+type PacketSlice []*Packet
+
+// implement sort.Interface
+
+func (p PacketSlice) Len() int {
+	return len(p)
+}
+
+func (p PacketSlice) Less(i, j int) bool {
+	return p[i].IsRightOrder(p[j]) == RightOrder
+}
+
+func (p PacketSlice) Swap(i, j int) {
+	p[i], p[j] = p[j], p[i]
 }
